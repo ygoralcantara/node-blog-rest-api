@@ -9,6 +9,7 @@ module.exports = {
     'import/extensions': 0,
     'no-console': 0,
     'no-underscore-dangle': 0,
+    'func-names': 0,
     '@typescript-eslint/camelcase': 0,
   },
   extends: [
