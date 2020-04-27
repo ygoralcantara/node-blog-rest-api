@@ -33,11 +33,11 @@ export async function getAllPosts(req: Request, res: Response): Promise<void> {
   });
 }
 
-export async function getPostById(req: Request, res: Response): Promise<void | Response> {
+export async function getPostById(req: Request, res: Response): Promise<Response> {
   if (!mongoose.isValidObjectId(req.params.postId)) {
     return res.status(httpStatus.BAD_REQUEST).json({
       status: 'fail',
-      message: 'postId invalid',
+      message: 'postId is invalid',
     });
   }
 
@@ -54,6 +54,55 @@ export async function getPostById(req: Request, res: Response): Promise<void | R
     status: 'success',
     data: {
       post: result,
+    },
+  });
+}
+
+export async function deletePostById(req: Request, res: Response): Promise<Response> {
+  if (!mongoose.isValidObjectId(req.params.postId)) {
+    return res.status(httpStatus.BAD_REQUEST).json({
+      status: 'fail',
+      message: 'postId is invalid',
+    });
+  }
+
+  await post.findByIdAndDelete(req.params.postId).exec();
+
+  return res.status(httpStatus.OK).json({
+    status: 'success',
+    data: null,
+  });
+}
+
+export async function updatePost(req: Request, res: Response): Promise<Response> {
+  const { postId } = req.params;
+
+  if (!mongoose.isValidObjectId(postId)) {
+    return res.status(httpStatus.BAD_REQUEST).json({
+      status: 'fail',
+      message: 'postId is invalid',
+    });
+  }
+
+  const result: PostInterface = await post.findByIdAndUpdate(postId, req.body, { new: true });
+
+  if (!result) {
+    return res.status(httpStatus.NOT_FOUND).json({
+      status: 'fail',
+      data: null,
+    });
+  }
+
+  return res.status(httpStatus.OK).json({
+    status: 'success',
+    data: {
+      post: {
+        _id: result._id,
+        title: result.title,
+        body: result.body,
+        date: result.date,
+        hidden: result.hidden,
+      },
     },
   });
 }
