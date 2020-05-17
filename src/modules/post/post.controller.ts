@@ -1,108 +1,86 @@
 import { Request, Response } from 'express';
 import * as mongoose from 'mongoose';
 
-import { PostInterface } from './post.interface';
-import post from './post.model';
-import httpStatus from '../../utils/httpStatus';
+import { httpStatus, jsend } from '@utils';
+import { IPost as I, Post } from '.';
 
 export async function createPost(req: Request, res: Response): Promise<void> {
-  const result: PostInterface = await post.create(req.body);
+  const result: I.Post = await Post.create(req.body);
 
-  res.status(httpStatus.CREATED).json({
-    status: 'success',
-    data: {
-      post: {
-        _id: result._id,
-        title: result.title,
-        body: result.body,
-        date: result.date,
-        hidden: result.hidden,
-      },
+  const data = {
+    post: {
+      _id: result._id,
+      title: result.title,
+      body: result.body,
+      date: result.date,
+      hidden: result.hidden,
     },
-  });
+  };
+
+  res.status(httpStatus.CREATED).json(jsend.success(data));
 }
 
 export async function getAllPosts(req: Request, res: Response): Promise<void> {
-  const result: PostInterface[] = await post.find({ hidden: false }).select('-__v').exec();
+  const result: I.Post[] = await Post.find({ hidden: false }).select('-__v').exec();
 
-  res.status(httpStatus.OK).json({
-    status: 'success',
-    data: {
-      posts: result,
-    },
-  });
+  res.status(httpStatus.OK).json(jsend.success({ posts: result }));
 }
 
 export async function getPostById(req: Request, res: Response): Promise<Response> {
-  if (!mongoose.isValidObjectId(req.params.postId)) {
+  if (!mongoose.isValidObjectId(req.params.postid)) {
     return res.status(httpStatus.BAD_REQUEST).json({
       status: 'fail',
-      message: 'postId is invalid',
+      message: 'postid is invalid',
     });
   }
 
-  const result: PostInterface = await post.findById(req.params.postId).select('-__v').exec();
+  const result: I.Post = await Post.findById(req.params.postid).select('-__v').exec();
 
   if (!result) {
-    return res.status(httpStatus.NOT_FOUND).json({
-      status: 'fail',
-      data: null,
-    });
+    return res.status(httpStatus.NOT_FOUND).json(jsend.fail());
   }
 
-  return res.status(httpStatus.OK).json({
-    status: 'success',
-    data: {
-      post: result,
-    },
-  });
+  return res.status(httpStatus.OK).json(jsend.success({ post: result }));
 }
 
 export async function deletePostById(req: Request, res: Response): Promise<Response> {
-  if (!mongoose.isValidObjectId(req.params.postId)) {
+  if (!mongoose.isValidObjectId(req.params.postid)) {
     return res.status(httpStatus.BAD_REQUEST).json({
       status: 'fail',
-      message: 'postId is invalid',
+      message: 'postid is invalid',
     });
   }
 
-  await post.findByIdAndDelete(req.params.postId).exec();
+  await Post.findByIdAndDelete(req.params.postid).exec();
 
-  return res.status(httpStatus.OK).json({
-    status: 'success',
-    data: null,
-  });
+  return res.status(httpStatus.OK).json(jsend.success());
 }
 
 export async function updatePost(req: Request, res: Response): Promise<Response> {
-  const { postId } = req.params;
+  const { postid } = req.params;
 
-  if (!mongoose.isValidObjectId(postId)) {
+  if (!mongoose.isValidObjectId(postid)) {
     return res.status(httpStatus.BAD_REQUEST).json({
       status: 'fail',
-      message: 'postId is invalid',
+      message: 'postid is invalid',
     });
   }
 
-  const result: PostInterface = await post.findByIdAndUpdate(postId, req.body, { new: true });
+  const result: I.Post = await Post.findByIdAndUpdate(postid, req.body, { new: true });
 
   if (!result) {
-    return res.status(httpStatus.NOT_FOUND).json({
-      status: 'fail',
-      data: null,
-    });
+    return res.status(httpStatus.NOT_FOUND).json(jsend.fail());
   }
 
-  return res.status(httpStatus.OK).json({
-    status: 'success',
-    data: {
-      post: {
-        _id: result._id,
-        title: result.title,
-        body: result.body,
-        date: result.date,
-        hidden: result.hidden,
-      },
+  const data = {
+    post: {
+      _id: result._id,
+      title: result.title,
+      body: result.body,
+      date: result.date,
+      hidden: result.hidden,
     },
-  });
+  };
+
+  return res.status(httpStatus.OK).json(jsend.success(data));
 }

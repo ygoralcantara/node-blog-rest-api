@@ -2,7 +2,7 @@ import * as joi from '@hapi/joi';
 
 import { Request, Response, NextFunction } from 'express';
 
-import httpStatus from '../utils/httpStatus';
+import { jsend, httpStatus } from 'utils';
 
 const validate = (schema: joi.ObjectSchema) => {
   return function (req: Request, res: Response, next: NextFunction): void | Response {
@@ -12,11 +12,13 @@ const validate = (schema: joi.ObjectSchema) => {
       return next();
     }
 
-    return res.status(httpStatus.BAD_REQUEST).json({
-      status: 'fail',
-      message: error.message,
-      data: error.details,
+    const details = {};
+
+    error.details.forEach((item) => {
+      details[item.path[0]] = item.message.replace(/"/g, '');
     });
+
+    return res.status(httpStatus.BAD_REQUEST).json(jsend.fail(details));
   };
 };
 
