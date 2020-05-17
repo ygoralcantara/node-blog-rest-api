@@ -11,6 +11,7 @@ module.exports = {
     'no-underscore-dangle': 0,
     'func-names': 0,
     '@typescript-eslint/camelcase': 0,
+    '@typescript-eslint/no-explicit-any': 0,
   },
   extends: [
     'airbnb-base', // Adicionaas regras do Airbnb Style Guide

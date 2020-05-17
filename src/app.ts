@@ -1,9 +1,8 @@
 import * as express from 'express';
 import * as bodyParser from 'body-parser';
 
-import connectMongo from './config/mongoConnect';
-import cors from './middlewares/cors.middleware';
-import router from './config/routes';
+import { cors, errorHandler } from '@middleware';
+import { connectMongo, router } from '@config';
 
 const { PORT } = process.env;
 
@@ -20,6 +19,9 @@ connectMongo();
 
 // Routes
 app.use('/api', router);
+
+// Error Handler Middleware
+app.use(errorHandler);
 
 app.get('/', (req: express.Request, res: express.Response) => {
   res.status(200).json({ message: 'Hello World' });

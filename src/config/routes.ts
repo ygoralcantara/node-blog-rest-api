@@ -1,8 +1,8 @@
 import * as express from 'express';
-import postRoutes from '../modules/post/post.routes';
+import { PostRoutes } from '@modules/post';
 
 const router: express.Router = express.Router();
 
-router.use('/posts', postRoutes);
+router.use('/posts', PostRoutes);
 
 export default router;
